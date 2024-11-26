@@ -11,6 +11,6 @@ DB_CONFIG = {
 
 # Function to load the model when needed
 def load_model():
-    model_path = os.getenv('MODEL_PATH', '/opt/render/project/src/models/mood_predictor.pkl')  # Use environment variable if set, else default path
+    model_path = os.getenv('MODEL_PATH', 'models/mood_predictor.pkl')  # Use environment variable if set, else default path
     with open(model_path, 'rb') as model_file:
         return pickle.load(model_file)
