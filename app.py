@@ -26,22 +26,15 @@ app.secret_key = 'c913093f2de71f85ed4d79bdf18b44aa'  # Required for session mana
 with open(MODEL_PATH, 'rb') as model_file:
     model = pickle.load(model_file)
 
-# Get database connection details from environment variables
-
-db_host = os.getenv('DB_HOST', 'mental-health-db.render.com')
-db_user = os.getenv('DB_USER', 'root')
-db_password = os.getenv('DB_PASSWORD', 'root@123')
-db_name = os.getenv('DB_NAME', 'mental_health_db')
-
+# Database connection
 def get_db_connection():
     connection = mysql.connector.connect(
-        host=db_host,
-        user=db_user,
-        password=db_password,
-        database=db_name
-)
+        host=os.getenv('DB_HOST', 'localhost'),  # Hostname
+        user=os.getenv('DB_USER', 'root'),  # Username
+        password=os.getenv('DB_PASSWORD','root@123'),  # Password
+        database=os.getenv('DB_NAME','mental_health_db')  # Database name
+    )
     return connection
-
 
 # Preprocess input text and analyze sentiment
 def preprocess_text(text):
