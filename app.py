@@ -27,17 +27,21 @@ with open(MODEL_PATH, 'rb') as model_file:
     model = pickle.load(model_file)
 
 # Get database connection details from environment variables
+
 db_host = os.getenv('DB_HOST', 'mental-health-db.render.com')
 db_user = os.getenv('DB_USER', 'root')
 db_password = os.getenv('DB_PASSWORD', 'root@123')
 db_name = os.getenv('DB_NAME', 'mental_health_db')
 
-connection = mysql.connector.connect(
-    host=db_host,
-    user=db_user,
-    password=db_password,
-    database=db_name
+def get_db_connection():
+    connection = mysql.connector.connect(
+        host=db_host,
+        user=db_user,
+        password=db_password,
+        database=db_name
 )
+    return connection
+
 
 # Preprocess input text and analyze sentiment
 def preprocess_text(text):
@@ -187,4 +191,4 @@ def model_evaluation():
     return render_template('model_evaluation.html', evaluation_metrics=evaluation_metrics)
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(debug=True)
