@@ -13,26 +13,18 @@ app = Flask(__name__)
 app.secret_key = 'c913093f2de71f85ed4d79bdf18b44aa'  # Required for session management
 
 # Load the trained model
-try:
-    with open(MODEL_PATH, 'rb') as model_file:
-        model = pickle.load(model_file)
-except Exception as e:
-    print(f"Error loading model: {e}")
-    model = None  # Handle the case where the model is not loaded
+with open(MODEL_PATH, 'rb') as model_file:
+    model = pickle.load(model_file)
 
 # Database connection
 def get_db_connection():
-    try:
-        connection = mysql.connector.connect(
-            host=os.getenv('DB_HOST', 'mental-health-db.render.com'),  # Use environment variable for database host
-            user=os.getenv('DB_USER', 'root'),  # Database user
-            password=os.getenv('DB_PASSWORD', 'root@123'),  # Database password
-            database=os.getenv('DB_NAME', 'mental_health_db')  # Database name
-        )
-        return connection
-    except mysql.connector.Error as e:
-        print(f"Error connecting to database: {e}")
-        return None
+    connection = mysql.connector.connect(
+        host=os.getenv('DB_HOST', 'mental-health-db.render.com'),  # Use environment variable for database host
+        user=os.getenv('DB_USER', 'root'),  # Database user
+        password=os.getenv('DB_PASSWORD', 'root@123'),  # Database password
+        database=os.getenv('DB_NAME', 'mental_health_db')  # Database name
+    )
+    return connection
 
 # Preprocess input text and analyze sentiment
 def preprocess_text(text):
@@ -49,20 +41,14 @@ def register():
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
         connection = get_db_connection()
-        if connection:
-            cursor = connection.cursor()
-            try:
-                cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, hashed_password))
-                connection.commit()
-                return redirect(url_for('login'))
-            except mysql.connector.Error as e:
-                print(f"Database error during registration: {e}")
-                return "An error occurred during registration. Please try again."
-            finally:
-                cursor.close()
-                connection.close()
-        else:
-            return "Database connection error."
+        cursor = connection.cursor()
+        cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, hashed_password))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        return redirect(url_for('login'))
+    
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -73,21 +59,18 @@ def login():
 
         try:
             connection = get_db_connection()
-            if connection:
-                cursor = connection.cursor()
-                cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
-                user = cursor.fetchone()
-                cursor.close()
-                connection.close()
+            cursor = connection.cursor()
+            cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
+            user = cursor.fetchone()
+            cursor.close()
+            connection.close()
 
-                if user and check_password_hash(user[2], password):
-                    session['username'] = user[1]
-                    return redirect(url_for('log_data'))
-                else:
-                    print(f"Debug: Login failed for username {username}")
-                    return "Login failed. Check your username and password."
+            if user and check_password_hash(user[2], password):
+                session['username'] = user[1]
+                return redirect(url_for('log_data'))
             else:
-                return "Database connection error."
+                print(f"Debug: Login failed for username {username}")
+                return "Login failed. Check your username and password."
         except Exception as e:
             print(f"Debug: Error in login - {e}")
             return "An error occurred during login."
@@ -117,54 +100,48 @@ def log_data():
         processed_input, sentiment = preprocess_text(combined_input)
 
         # Predict mood using the trained model
-        if model:
-            predicted_mood = model.predict([processed_input])[0]
-        else:
-            predicted_mood = "Unknown"  # In case the model is not loaded
+        predicted_mood = model.predict([processed_input])[0]
 
         # Insert data into the logs table
         connection = get_db_connection()
-        if connection:
-            cursor = connection.cursor()
-            try:
-                cursor.execute(
-                    'INSERT INTO logs (mood, mood_score, activity, sleep, predicted_mood, sentiment) VALUES (%s, %s, %s, %s, %s, %s)',
-                    (mood, mood_score, activity, sleep, predicted_mood, sentiment)
-                )
-                connection.commit()
-
-                # Fetch recommendation from the recommendations table
-                cursor.execute('SELECT recommendation FROM recommendations WHERE LOWER(mood) = LOWER(%s) AND LOWER(activity) = LOWER(%s) AND sleep = %s LIMIT 1',
-                               (mood.strip(), activity.strip(), sleep))
-                recommendation = cursor.fetchone()
-
-                # Debugging
-                print(f"Debug: Mood - {mood}, Activity - {activity}, Sleep - {sleep}")
-                print(f"Debug: Recommendation fetched - {recommendation}")
-
-            except Exception as e:
-                print(f"Error: {e}")
-                recommendation = None
-
-            finally:
-                cursor.close()
-                connection.close()
-
-            # Handle case if no recommendation is found
-            recommendation_text = recommendation[0] if recommendation else "No specific recommendation found, but keep a positive mindset!"
-
-            # Pass the recommendation and other data to the template
-            return render_template(
-                'analysis.html',
-                mood=mood,
-                activity=activity,
-                sleep=sleep,
-                predicted_mood=predicted_mood,
-                sentiment=sentiment,
-                recommendation=recommendation_text
+        cursor = connection.cursor()
+        try:
+            cursor.execute(
+                'INSERT INTO logs (mood, mood_score, activity, sleep, predicted_mood, sentiment) VALUES (%s, %s, %s, %s, %s, %s)',
+                (mood, mood_score, activity, sleep, predicted_mood, sentiment)
             )
-        else:
-            return "Database connection error."
+            connection.commit()
+
+            # Fetch recommendation from the recommendations table
+            cursor.execute('SELECT recommendation FROM recommendations WHERE LOWER(mood) = LOWER(%s) AND LOWER(activity) = LOWER(%s) AND sleep = %s LIMIT 1',
+                           (mood.strip(), activity.strip(), sleep))
+            recommendation = cursor.fetchone()
+
+            # Debugging
+            print(f"Debug: Mood - {mood}, Activity - {activity}, Sleep - {sleep}")
+            print(f"Debug: Recommendation fetched - {recommendation}")
+
+        except Exception as e:
+            print(f"Error: {e}")
+            recommendation = None
+
+        finally:
+            cursor.close()
+            connection.close()
+
+        # Handle case if no recommendation is found
+        recommendation_text = recommendation[0] if recommendation else "No specific recommendation found, but keep a positive mindset!"
+
+        # Pass the recommendation and other data to the template
+        return render_template(
+            'analysis.html',
+            mood=mood,
+            activity=activity,
+            sleep=sleep,
+            predicted_mood=predicted_mood,
+            sentiment=sentiment,
+            recommendation=recommendation_text
+        )
 
     return render_template('index.html')
 
@@ -174,20 +151,17 @@ def dashboard():
         return redirect(url_for('login'))
 
     connection = get_db_connection()
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute('SELECT mood, mood_score, activity, sleep, predicted_mood, sentiment FROM logs')
-        logs = cursor.fetchall()
-        cursor.close()
-        connection.close()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute('SELECT mood, mood_score, activity, sleep, predicted_mood, sentiment FROM logs')
+    logs = cursor.fetchall()
+    cursor.close()
+    connection.close()
 
-        df = pd.DataFrame(logs)
-        fig = px.line(df, x=df.index, y=['mood_score', 'sleep'], title='Mood Score and Sleep Over Time')
-        graph = fig.to_html(full_html=False)
+    df = pd.DataFrame(logs)
+    fig = px.line(df, x=df.index, y=['mood_score', 'sleep'], title='Mood Score and Sleep Over Time')
+    graph = fig.to_html(full_html=False)
 
-        return render_template('dashboard.html', graph=graph)
-    else:
-        return "Database connection error."
+    return render_template('dashboard.html', graph=graph)
 
 @app.route('/model_evaluation')
 def model_evaluation():
@@ -205,4 +179,4 @@ def model_evaluation():
     return render_template('model_evaluation.html', evaluation_metrics=evaluation_metrics)
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
