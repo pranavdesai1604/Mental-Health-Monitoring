@@ -1,13 +1,3 @@
-# from flask import Flask
-# app = Flask(__name__)
-
-# @app.route("/")
-# def home():
-#     return "Hello, Flask!"
-
-#--------------------
-#-----
-
 from flask import Flask, render_template, request, redirect, url_for, session
 import mysql.connector
 import pickle
@@ -29,10 +19,10 @@ with open(MODEL_PATH, 'rb') as model_file:
 # Database connection
 def get_db_connection():
     connection = mysql.connector.connect(
-        host=os.getenv('DB_HOST', 'localhost'),  # Hostname
-        user=os.getenv('DB_USER', 'root'),  # Username
-        password=os.getenv('DB_PASSWORD','root@123'),  # Password
-        database=os.getenv('DB_NAME','mental_health_db')  # Database name
+        host=os.getenv('DB_HOST', 'mental-health-db.render.com'),  # Use environment variable for database host
+        user=os.getenv('DB_USER', 'root'),  # Database user
+        password=os.getenv('DB_PASSWORD', 'root@123'),  # Database password
+        database=os.getenv('DB_NAME', 'mental_health_db')  # Database name
     )
     return connection
 
@@ -184,4 +174,4 @@ def model_evaluation():
     return render_template('model_evaluation.html', evaluation_metrics=evaluation_metrics)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
