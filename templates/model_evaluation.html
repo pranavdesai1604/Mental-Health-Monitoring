@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Model Evaluation</title>
+</head>
+<body>
+    <div class="mt-4">
+    <h1>Model Evaluation</h1>
+    <p><strong>Accuracy: </strong>   {{ evaluation_metrics['accuracy'] }}</p>
+    <p><strong>Precision: </strong> {{ evaluation_metrics['precision'] }}</p>
+    <p><strong>Recall: </strong> {{ evaluation_metrics['recall'] }}</p>
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</body>
+</html>

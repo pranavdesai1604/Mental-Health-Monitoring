@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('log_data') }}">Home</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container mt-5">
+        <h1 class="text-center">Mood Analysis</h1>
+
+        <!-- Input Section -->
+        <div class="mt-4">
+            <h3>Your Input:</h3>
+            <p><strong>Mood:</strong> {{ mood }}</p>
+            <p><strong>Activity:</strong> {{ activity }}</p>
+            <p><strong>Sleep:</strong> {{ sleep }} hours</p>
+            <p><strong>Sentiment Score:</strong> {{ sentiment }}</p>
+        </div>
+
+        <!-- Analysis Result Section -->
+        <div class="mt-4">
+            <h3>Analysis Result:</h3>
+            <p><strong>Predicted Mood:</strong> {{ predicted_mood }}</p>
+        </div>
+
+        <!-- Recommendation Section -->
+        <div class="mt-4">
+            <h3>Our Recommendation for You:</h3>
+            {% if recommendation %}
+                <p>{{ recommendation }}</p>
+            {% else %}
+                <p>No recommendation is available at the moment. Please try again later.</p>
+            {% endif %}
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="mt-4 text-center">
+            <a href="{{ url_for('log_data') }}" class="btn btn-secondary">Go Back</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">View Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Health Monitoring</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('log_data') }}">Home</a></li>
+            <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+    
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Mental Health Monitoring System</h1>
+        <form action="{{ url_for('log_data') }}" method="post" class="mt-4">
+            <div class="form-group">
+                <label for="mood">How are you feeling today?</label>
+                <textarea class="form-control" id="mood" name="mood" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="activity">What activities did you do today?</label>
+                <textarea class="form-control" id="activity" name="activity" rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="sleep">How many hours did you sleep last night?</label>
+                <input type="number" class="form-control" id="sleep" name="sleep" min="0" max="24" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        
+    </div>
+</body>
+</html>
