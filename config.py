@@ -1,4 +1,5 @@
 import os
+import pickle
 
 # Fetch environment variables for database connection
 DB_CONFIG = {
@@ -10,3 +11,5 @@ DB_CONFIG = {
 
 # Path to the trained machine learning model
 MODEL_PATH = os.getenv('MODEL_PATH', 'models/mood_predictor.pkl')  # Use environment variable if set, else default path
+with open(MODEL_PATH, 'rb') as model_file:
+    model = pickle.load(model_file)
