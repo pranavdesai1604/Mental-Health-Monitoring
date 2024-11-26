@@ -27,7 +27,7 @@ with open(MODEL_PATH, 'rb') as model_file:
     model = pickle.load(model_file)
 
 # Get database connection details from environment variables
-db_host = os.getenv('DB_HOST', 'localhost')
+db_host = os.getenv('DB_HOST', 'mental-health-db.render.com')
 db_user = os.getenv('DB_USER', 'root')
 db_password = os.getenv('DB_PASSWORD', 'root@123')
 db_name = os.getenv('DB_NAME', 'mental_health_db')
