@@ -57,18 +57,23 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
-        user = cursor.fetchone()
-        cursor.close()
-        connection.close()
+        try:
+            connection = get_db_connection()
+            cursor = connection.cursor()
+            cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
+            user = cursor.fetchone()
+            cursor.close()
+            connection.close()
 
-        if user and check_password_hash(user[2], password):
-            session['username'] = user[1]
-            return redirect(url_for('log_data'))
-        else:
-            return "Login failed. Check your username and password."
+            if user and check_password_hash(user[2], password):
+                session['username'] = user[1]
+                return redirect(url_for('log_data'))
+            else:
+                print(f"Debug: Login failed for username {username}")
+                return "Login failed. Check your username and password."
+        except Exception as e:
+            print(f"Debug: Error in login - {e}")
+            return "An error occurred during login."
     
     return render_template('login.html')
 
