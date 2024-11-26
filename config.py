@@ -9,7 +9,8 @@ DB_CONFIG = {
     'database': os.getenv('DB_NAME', 'mental_health_db')  # Default database name
 }
 
-# Path to the trained machine learning model
-MODEL_PATH = os.getenv('MODEL_PATH', 'models/mood_predictor.pkl')  # Use environment variable if set, else default path
-with open(MODEL_PATH, 'rb') as model_file:
-    model = pickle.load(model_file)
+# Function to load the model when needed
+def load_model():
+    model_path = os.getenv('MODEL_PATH', 'models/mood_predictor.pkl')  # Use environment variable if set, else default path
+    with open(model_path, 'rb') as model_file:
+        return pickle.load(model_file)
