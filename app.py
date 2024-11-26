@@ -29,10 +29,10 @@ with open(MODEL_PATH, 'rb') as model_file:
 # Database connection
 def get_db_connection():
     connection = mysql.connector.connect(
-        host=os.getenv('localhost'),  # Hostname
-        user=os.getenv('root'),  # Username
-        password=os.getenv('root@123'),  # Password
-        database=os.getenv('mental_health_db')  # Database name
+        host=os.getenv('DB_HOST', 'localhost'),  # Hostname
+        user=os.getenv('DB_USER', 'root'),  # Username
+        password=os.getenv('DB_PASSWORD','root@123'),  # Password
+        database=os.getenv('DB_NAME','mental_health_db')  # Database name
     )
     return connection
 
