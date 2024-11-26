@@ -10,8 +10,12 @@ DB_CONFIG = {
 }
 
 # Path to the trained machine learning model
-MODEL_PATH = os.getenv('MODEL_PATH', 'models/mood_predictor.pkl')  # Default path if not set via env
+MODEL_PATH = os.getenv('MODEL_PATH', '/opt/render/project/src/models/mood_predictor.pkl')
 
 # Load the model using the path defined above
-with open(MODEL_PATH, 'rb') as model_file:
-    model = pickle.load(model_file)
+try:
+    with open(MODEL_PATH, 'rb') as model_file:
+        model = pickle.load(model_file)
+except FileNotFoundError:
+    print(f"Error: Model file not found at {MODEL_PATH}")
+    raise  # Re-raise the error for logging
