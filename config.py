@@ -5,7 +5,7 @@ import pickle
 DB_CONFIG = {
     'user': os.getenv('DB_USER', 'root'),
     'password': os.getenv('DB_PASSWORD', 'root@123'),
-    'host': os.getenv('DB_HOST', '127.0.0.1'),
+    'host': os.getenv('DB_HOST', 'mental-health-db.render.com'),
     'database': os.getenv('DB_NAME', 'mental_health_db')
 }
 
