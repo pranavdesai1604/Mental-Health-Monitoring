@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import plotly.express as px
 import pandas as pd
 import os
+import traceback
 
 app = Flask(__name__)
 app.secret_key = 'c913093f2de71f85ed4d79bdf18b44aa'  # Required for session management
@@ -35,21 +36,25 @@ def preprocess_text(text):
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+    try:
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form['password']
+            hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, hashed_password))
-        connection.commit()
-        cursor.close()
-        connection.close()
+            connection = get_db_connection()
+            cursor = connection.cursor()
+            cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)', (username, hashed_password))
+            connection.commit()
+            cursor.close()
+            connection.close()
 
-        return redirect(url_for('login'))
-    
-    return render_template('register.html')
+            return redirect(url_for('login'))
+        return render_template('register.html')
+    except Exception as e:
+        print(f"Error in /register: {e}")
+        print(traceback.format_exc())  # Logs the full stack trace for debugging
+        return "An error occurred during registration.", 500
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
