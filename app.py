@@ -9,6 +9,7 @@ import plotly.express as px
 import pandas as pd
 import os
 import traceback
+from config import DB_CONFIG 
 
 app = Flask(__name__)
 app.secret_key = 'c913093f2de71f85ed4d79bdf18b44aa'  # Required for session management
@@ -17,15 +18,23 @@ app.secret_key = 'c913093f2de71f85ed4d79bdf18b44aa'  # Required for session mana
 with open(MODEL_PATH, 'rb') as model_file:
     model = pickle.load(model_file)
 
-# Database connection
+
+# Establish connection to MySQL database
+
 def get_db_connection():
-    connection = mysql.connector.connect(
-        host=os.getenv('DB_HOST', 'mental-health-db.render.com'),  # Use environment variable for database host
-        user=os.getenv('DB_USER', 'root'),  # Database user
-        password=os.getenv('DB_PASSWORD', 'root@123'),  # Database password
-        database=os.getenv('DB_NAME', 'mental_health_db')  # Database name
-    )
-    return connection
+    try:
+        # Using the database configuration settings
+        connection = mysql.connector.connect(
+            host=DB_CONFIG.get('MYSQL_ADDON_HOST', 'b6wf7qtmlju0b7jgmngz-mysql.services.clever-cloud.com'),  # MySQL host from Clever Cloud
+            user=DB_CONFIG.get('MYSQL_ADDON_USER', 'uquaijjll5pkweqk'),  # MySQL username from Clever Cloud
+            password=DB_CONFIG.get('MYSQL_ADDON_PASSWORD', '4Boi0J3HVPqukEKl6xxZ'),  # MySQL password from Clever Cloud
+            database=DB_CONFIG.get('MYSQL_ADDON_DB', 'b6wf7qtmlju0b7jgmngz'),  # Database name from Clever Cloud
+            port=DB_CONFIG.get('MYSQL_ADDON_PORT', '3306')  # MySQL port, usually 3306
+        )
+        return connection
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
 
 # Preprocess input text and analyze sentiment
 def preprocess_text(text):
